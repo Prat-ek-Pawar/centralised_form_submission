@@ -1,5 +1,7 @@
 const express = require("express");
 const app = express();
+const dotenv = require("dotenv");
+dotenv.config();
 const cookieParser = require("cookie-parser");
 const cors = require("cors");  
 const mongoose = require("mongoose");
@@ -15,7 +17,7 @@ app.use(cors({
     credentials: true 
 }));
 
-mongoose.connect("mongodb://localhost:27017/digitech-dashboard").then(()=>{
+mongoose.connect(process.env.MONGO_URI, {useNewUrlParser: true, useUnifiedTopology: true}).then(()=>{
     console.log("database connected")
 }).catch((err)=>{
     console.log("Error : ",err)
