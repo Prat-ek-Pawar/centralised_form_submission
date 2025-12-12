@@ -1,24 +1,10 @@
 const express = require("express");
-const route = express.Router();
-// const { createForm } = require("../controllers/formControllers"); 
-const { submitForm } = require("../controllers/formControllers");
-const {createClient} = require("../controllers/clientControllers");
-const {getAllClients} = require("../controllers/clientControllers");
+const router = express.Router();
+const { submitForm, getMySubmissions } = require("../controllers/formControllers");
+const { protect } = require("../middleware/authMiddleware");
 
+router.post("/submit/:clientID", submitForm);
 
+router.get("/my-submissions", protect, getMySubmissions);
 
-route.get("/form", (req, res) => {
-    return res.send("form api");
-});
-
-route.get("/getClient", getAllClients);  
-
-
-
-// route.post("/form", createForm); 
-route.post("/client",createClient)
-route.post("/:clientID", submitForm);  // clientID is part of the URL
-
-
-
-module.exports = route;
+module.exports = router;

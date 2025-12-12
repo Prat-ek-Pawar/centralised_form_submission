@@ -1,12 +1,13 @@
 const mongoose = require("mongoose")
 const {v4:uuidv4} = require("uuid")
+const bcrypt = require("bcryptjs")
 
 const clientSchema = mongoose.Schema(
     {
         clientID: { 
             type: String, 
             required: true, 
-            default: uuidv4  // Automatically generate clientID using uuid (UUID v4)
+            default: uuidv4
         },
         userName: {
             type: String,
@@ -16,17 +17,33 @@ const clientSchema = mongoose.Schema(
         email: {
             type: String,
             required: true,
-            unique: true  // Ensure unique email for each client
+            unique: true
         },
+
         password: {
             type: String,
             required: true
+        },
+        isLocked: {
+            type: Boolean,
+            default: false
         }
     },
     { timestamps: true }
 );
 
-// Create the Client model
+clientSchema.pre('save', async function (next) {
+    if (!this.isModified('password')) {
+        next();
+    }
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+});
+
+clientSchema.methods.matchPassword = async function (enteredPassword) {
+    return await bcrypt.compare(enteredPassword, this.password);
+};
+
 const Client = mongoose.model("Client", clientSchema);
 
 module.exports = Client;

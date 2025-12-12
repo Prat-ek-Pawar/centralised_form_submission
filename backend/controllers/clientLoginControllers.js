@@ -1,4 +1,4 @@
-const Client = require("../models/clientCreationModel");  // Import Client model
+const Client = require("../models/clientCreationModel");
 const express = require("express");
 const Form = require("../models/formSubmission")
 
@@ -7,7 +7,6 @@ async function getClient(req, res) {
         const { userName, password } = req.body;
         console.log("Received:", userName, password);
 
-        // Find only specific fields
         const client = await Client.findOne(
             { userName, password },
             "clientID userName email"
@@ -20,10 +19,8 @@ async function getClient(req, res) {
             });
         }
 
-        // Extract plain ID
         const clientID = client.clientID;
 
-        // Find all form data for that client
         const formData = await Form.find({ clientID });
         console.log("Form Data:", formData);
 
@@ -42,11 +39,6 @@ async function getClient(req, res) {
         });
     }
 }
-
-
-
-
-
 
 module.exports = {
     getClient

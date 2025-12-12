@@ -7,12 +7,12 @@ const formSubmissionSchema = new mongoose.Schema(
             required: true
         },
         data: {
-            type: mongoose.Schema.Types.Mixed,  // accepts any dynamic fields
+            type: mongoose.Schema.Types.Mixed,
             required: true
         }
     },
     {
-        timestamps: true // createdAt, updatedAt
+        timestamps: true
     }
 );
 

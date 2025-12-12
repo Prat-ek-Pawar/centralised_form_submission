@@ -1,15 +1,19 @@
 const express = require("express");
 const app = express();
+const cookieParser = require("cookie-parser");
 const cors = require("cors");  
 const mongoose = require("mongoose");
-const formRoute = require("./routers/formRoutes");
-const clientLogin = require("./routers/clientRoutes")
-
+const authRoutes = require("./routers/authRoutes");
+const adminRoutes = require("./routers/adminRoutes");
+const formRoutes = require("./routers/formRoutes");
 
 app.use(express.json()); 
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
-
+app.use(cors({
+    origin: true, 
+    credentials: true 
+}));
 
 mongoose.connect("mongodb://localhost:27017/digitech-dashboard").then(()=>{
     console.log("database connected")
@@ -17,9 +21,9 @@ mongoose.connect("mongodb://localhost:27017/digitech-dashboard").then(()=>{
     console.log("Error : ",err)
 })
 
-// app.use("/", formRoute);
-app.use("/form", formRoute);  // Form routes (for form submission)
-app.use("/client",clientLogin)
+app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/forms", formRoutes);
 
 
 app.listen(8088, () => {
