@@ -1,4 +1,4 @@
-# API Integration Guide
+  # API Integration Guide
 
 This document details the backend API endpoints. All requests that require authentication/cookies must be sent with `credentials: 'include'` (fetch) or `withCredentials: true` (axios).
 
@@ -16,7 +16,7 @@ This document details the backend API endpoints. All requests that require authe
 - **Request Payload**:
   ```json
   {
-    "userName": "superadmin",
+    "userName": "admin",
     "password": "your_secure_password"
   }
   ```
@@ -28,8 +28,8 @@ This document details the backend API endpoints. All requests that require authe
     "role": "admin",
     "user": {
       "id": "675bf0...",
-      "userName": "superadmin",
-      "email": "admin@thedigitechsolutions.com"
+      "userName": "admin",
+      "email": "admin@gmail.com"
     }
   }
   ```
