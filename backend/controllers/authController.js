@@ -88,38 +88,11 @@ const logout = (req, res) => {
     res.status(200).json({ message: "Logged out" });
 };
 
-const registerAdmin = async (req, res) => {
-    try {
-        const { userName, email, password } = req.body;
-        const adminExists = await Admin.findOne({ email });
 
-        if (adminExists) {
-            return res.status(400).json({ message: "Admin already exists" });
-        }
-
-        const admin = await Admin.create({
-            userName,
-            email,
-            password 
-        });
-
-        if (admin) {
-             res.status(201).json({
-                _id: admin._id,
-                userName: admin.userName,
-                email: admin.email,
-            });
-        } else {
-            res.status(400).json({ message: "Invalid admin data" });
-        }
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-}
 
 module.exports = {
     adminLogin,
     clientLogin,
     logout,
-    registerAdmin
+
 };
