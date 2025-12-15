@@ -18,8 +18,8 @@ const adminLogin = async (req, res) => {
             
             res.cookie("jwt", token, {
                 httpOnly: true,
-                secure: false,
-                sameSite: "strict",
+                secure: true, // Required for HTTPS
+                sameSite: "none", // Required for cross-site (subdomain) cookie sharing
                 maxAge: 30 * 24 * 60 * 60 * 1000,
             });
 
@@ -56,8 +56,8 @@ const clientLogin = async (req, res) => {
 
             res.cookie("jwt", token, {
                 httpOnly: true,
-                secure: false, 
-                sameSite: "strict",
+                secure: true, // Required for HTTPS
+                sameSite: "none", // Required for cross-site (subdomain) cookie sharing
                 maxAge: 30 * 24 * 60 * 60 * 1000,
             });
 
