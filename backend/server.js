@@ -12,11 +12,7 @@ const formRoutes = require("./routers/formRoutes");
 app.use(express.json()); 
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors({
-    origin: ["https://forms.thedigitechsolutions.com", "https://dev.thedigitechsolutions.com", "http://localhost:5500", "http://127.0.0.1:5500", "https://thedigitech.com", "https://www.thedigitech.com"], 
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-}));
+app.use(cors());
 
 mongoose.connect(process.env.MONGO_URI, {useNewUrlParser: true, useUnifiedTopology: true})
 .then(async ()=>{
