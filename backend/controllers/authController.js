@@ -27,6 +27,7 @@ const adminLogin = async (req, res) => {
                 success: true,
                 message: "Admin logged in",
                 role: "admin",
+                token: token, // Sent for fallback (Bearer auth)
                 user: {
                     id: admin._id,
                     userName: admin.userName,
@@ -65,6 +66,7 @@ const clientLogin = async (req, res) => {
                 success: true,
                 message: "Client logged in",
                 role: "client",
+                token: token, // Sent for fallback (Bearer auth)
                 user: {
                     id: client._id,
                     clientID: client.clientID,

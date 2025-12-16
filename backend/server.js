@@ -13,7 +13,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-    origin: true, // "true" mirrors the request origin, effectively allowing all origins while keeping credentials working
+    origin: ["https://dev.thedigitechsolutions.com", "http://localhost:5500", "http://127.0.0.1:5500", "https://thedigitech.com", "https://www.thedigitech.com"], 
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 }));
