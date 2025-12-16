@@ -12,7 +12,11 @@ const formRoutes = require("./routers/formRoutes");
 app.use(express.json()); 
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(cors({
+    origin: true, // Reflects the request origin, effectively allowing all
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+}));
 
 mongoose.connect(process.env.MONGO_URI, {useNewUrlParser: true, useUnifiedTopology: true})
 .then(async ()=>{
