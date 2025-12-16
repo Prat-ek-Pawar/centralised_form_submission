@@ -13,7 +13,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-    origin: ["https://dev.thedigitechsolutions.com", "http://localhost:5500", "http://127.0.0.1:5500", "https://thedigitech.com", "https://www.thedigitech.com"], 
+    origin: ["https://forms.thedigitechsolutions.com", "https://dev.thedigitechsolutions.com", "http://localhost:5500", "http://127.0.0.1:5500", "https://thedigitech.com", "https://www.thedigitech.com"], 
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 }));
@@ -23,6 +23,11 @@ mongoose.connect(process.env.MONGO_URI, {useNewUrlParser: true, useUnifiedTopolo
 }).catch((err)=>{
     console.log("Error : ",err)
 })
+
+
+app.get("/", (req, res) => {
+    res.send("API is running successfully. backend"); 
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);

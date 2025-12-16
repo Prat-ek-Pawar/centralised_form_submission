@@ -1,7 +1,7 @@
 # API Documentation & Frontend Integration Guide
 
 ## **Backend Base URL**
-*   **Live:** `https://api.thedigitechsolutions.com`
+*   **Live:** `https://forms.thedigitechsolutions.com`
 *   **Local:** `http://localhost:8088`
 
 **Important:** The backend does **not** serve static files (HTML/CSS). You must rely on the CORS configuration in the backend allowing your frontend origin.
@@ -48,7 +48,7 @@ if (token) {
     headers['Authorization'] = `Bearer ${token}`;
 }
 
-fetch('https://api.thedigitechsolutions.com/api/some-endpoint', {
+fetch('https://forms.thedigitechsolutions.com/api/some-endpoint', {
     method: 'GET',
     headers: headers,
     credentials: 'include' // TRY COOKIE FIRST
@@ -101,7 +101,7 @@ fetch('https://api.thedigitechsolutions.com/api/some-endpoint', {
     3.  Send the password in the body of the DELETE request.
     
     ```javascript
-    fetch(`https://api.thedigitechsolutions.com/api/admin/clients/${clientId}`, {
+    fetch(`https://forms.thedigitechsolutions.com/api/admin/clients/${clientId}`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
