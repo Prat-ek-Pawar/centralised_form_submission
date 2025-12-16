@@ -18,8 +18,30 @@ app.use(cors({
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 }));
 
-mongoose.connect(process.env.MONGO_URI, {useNewUrlParser: true, useUnifiedTopology: true}).then(()=>{
-    console.log("database connected")
+mongoose.connect(process.env.MONGO_URI, {useNewUrlParser: true, useUnifiedTopology: true})
+.then(async ()=>{
+    console.log("database connected");
+    
+    // --- AUTOMATIC FIX FOR DUPLICATE KEY ERROR ---
+    try {
+        const clientCollection = mongoose.connection.collection("clients");
+        // Check if index exists before trying to drop it
+        const indexes = await clientCollection.indexes();
+        const problematicIndex = indexes.find(idx => idx.name === "publicKey_1");
+        
+        if (problematicIndex) {
+            console.log("Found ghost index 'publicKey_1'. Automatically dropping it to fix E11000 error...");
+            await clientCollection.dropIndex("publicKey_1");
+            console.log("✅ Successfully dropped 'publicKey_1'. Client creation will now work.");
+        }
+    } catch (err) {
+        // Ignore "index not found" or "namespace not found" errors, as they mean we are safe
+        if (err.code !== 27 && err.codeName !== 'NamespaceNotFound') {
+            console.log("Auto-fix index warning:", err.message);
+        }
+    }
+    // ---------------------------------------------
+
 }).catch((err)=>{
     console.log("Error : ",err)
 })
