@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - Digitech Solutions</title>
+    <meta
+      name="description"
+      content="Login to access the Digitech Solutions centralised form dashboard."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(
+          135deg,
+          #0f0c29 0%,
+          #302b63 50%,
+          #24243e 100%
+        );
+        overflow: hidden;
+        position: relative;
+      }
+
+      /* Animated background orbs */
+      body::before,
+      body::after {
+        content: "";
+        position: fixed;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.3;
+        z-index: 0;
+        animation: float 8s ease-in-out infinite alternate;
+      }
+      body::before {
+        width: 400px;
+        height: 400px;
+        background: #7f5af0;
+        top: -100px;
+        left: -100px;
+      }
+      body::after {
+        width: 350px;
+        height: 350px;
+        background: #2cb67d;
+        bottom: -100px;
+        right: -100px;
+        animation-delay: -4s;
+      }
+
+      @keyframes float {
+        0% {
+          transform: translate(0, 0) scale(1);
+        }
+        100% {
+          transform: translate(40px, 30px) scale(1.1);
+        }
+      }
+
+      .login-wrapper {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-width: 420px;
+        padding: 20px;
+      }
+
+      .login-card {
+        background: rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 40px 36px;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+      }
+
+      .login-card .logo {
+        text-align: center;
+        margin-bottom: 8px;
+      }
+
+      .login-card .logo h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #fff;
+        letter-spacing: -0.5px;
+      }
+      .login-card .logo h1 span {
+        background: linear-gradient(135deg, #7f5af0, #2cb67d);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .login-card .subtitle {
+        text-align: center;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.85rem;
+        margin-bottom: 28px;
+      }
+
+      /* Tabs */
+      .tabs {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 28px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        padding: 4px;
+      }
+
+      .tab-btn {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        border-radius: 10px;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.5);
+        font-family: inherit;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .tab-btn.active {
+        background: rgba(127, 90, 240, 0.3);
+        color: #fff;
+        box-shadow: 0 2px 12px rgba(127, 90, 240, 0.3);
+      }
+
+      .tab-btn:hover:not(.active) {
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      /* Form */
+      .form-group {
+        margin-bottom: 20px;
+        position: relative;
+      }
+
+      .form-group label {
+        display: block;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.8rem;
+        font-weight: 500;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .form-group input {
+        width: 100%;
+        padding: 12px 16px;
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        color: #fff;
+        font-family: inherit;
+        font-size: 0.95rem;
+        outline: none;
+        transition: all 0.3s ease;
+      }
+
+      .form-group input::placeholder {
+        color: rgba(255, 255, 255, 0.25);
+      }
+
+      .form-group input:focus {
+        border-color: rgba(127, 90, 240, 0.6);
+        background: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 0 0 3px rgba(127, 90, 240, 0.15);
+      }
+
+      .submit-btn {
+        width: 100%;
+        padding: 13px;
+        border: none;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #7f5af0, #6c47d4);
+        color: #fff;
+        font-family: inherit;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .submit-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 25px rgba(127, 90, 240, 0.4);
+      }
+
+      .submit-btn:active {
+        transform: translateY(0);
+      }
+
+      .submit-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .error-msg {
+        margin-top: 16px;
+        padding: 10px 14px;
+        background: rgba(231, 76, 60, 0.15);
+        border: 1px solid rgba(231, 76, 60, 0.3);
+        border-radius: 8px;
+        color: #e74c3c;
+        font-size: 0.85rem;
+        text-align: center;
+        display: none;
+        animation: shake 0.4s ease;
+      }
+
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        20%,
+        60% {
+          transform: translateX(-6px);
+        }
+        40%,
+        80% {
+          transform: translateX(6px);
+        }
+      }
+
+      .success-msg {
+        margin-top: 16px;
+        padding: 10px 14px;
+        background: rgba(44, 182, 125, 0.15);
+        border: 1px solid rgba(44, 182, 125, 0.3);
+        border-radius: 8px;
+        color: #2cb67d;
+        font-size: 0.85rem;
+        text-align: center;
+        display: none;
+      }
+
+      /* Loading spinner */
+      .spinner {
+        display: none;
+        width: 18px;
+        height: 18px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+        margin: 0 auto;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @media (max-width: 480px) {
+        .login-card {
+          padding: 30px 24px;
+          border-radius: 16px;
+        }
+        .login-card .logo h1 {
+          font-size: 1.3rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-wrapper">
+      <div class="login-card">
+        <div class="logo">
+          <h1><span>Digitech</span> Solutions</h1>
+        </div>
+        <p class="subtitle">Centralised Form Dashboard</p>
+
+        <!-- Tabs -->
+        <div class="tabs">
+          <button
+            class="tab-btn active"
+            id="tabAdmin"
+            onclick="switchTab('admin')"
+          >
+            Super Admin
+          </button>
+          <button class="tab-btn" id="tabClient" onclick="switchTab('client')">
+            Client
+          </button>
+        </div>
+
+        <!-- Admin Login Form -->
+        <form id="adminLoginForm">
+          <div class="form-group">
+            <label for="adminUserName">Username</label>
+            <input
+              type="text"
+              id="adminUserName"
+              name="userName"
+              placeholder="Enter admin username"
+              required
+              autocomplete="username"
+            />
+          </div>
+          <div class="form-group">
+            <label for="adminPassword">Password</label>
+            <input
+              type="password"
+              id="adminPassword"
+              name="password"
+              placeholder="Enter password"
+              required
+              autocomplete="current-password"
+            />
+          </div>
+          <button type="submit" class="submit-btn" id="adminSubmitBtn">
+            <span class="btn-text">Sign In as Admin</span>
+            <div class="spinner" id="adminSpinner"></div>
+          </button>
+        </form>
+
+        <!-- Client Login Form -->
+        <form id="clientLoginForm" style="display: none">
+          <div class="form-group">
+            <label for="clientUserName">Username</label>
+            <input
+              type="text"
+              id="clientUserName"
+              name="userName"
+              placeholder="Enter client username"
+              required
+              autocomplete="username"
+            />
+          </div>
+          <div class="form-group">
+            <label for="clientPassword">Password</label>
+            <input
+              type="password"
+              id="clientPassword"
+              name="password"
+              placeholder="Enter password"
+              required
+              autocomplete="current-password"
+            />
+          </div>
+          <button type="submit" class="submit-btn" id="clientSubmitBtn">
+            <span class="btn-text">Sign In as Client</span>
+            <div class="spinner" id="clientSpinner"></div>
+          </button>
+        </form>
+
+        <p class="error-msg" id="errorMsg"></p>
+        <p class="success-msg" id="successMsg"></p>
+      </div>
+    </div>
+
+    <script>
+      const API_BASE = "/api";
+
+      // Check if already logged in
+      (function () {
+        const token = localStorage.getItem("token");
+        if (token) {
+          fetch(`${API_BASE}/auth/me`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              if (data.valid) {
+                window.location.href = "/dashboard";
+              } else {
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
+                localStorage.removeItem("role");
+              }
+            })
+            .catch(() => {});
+        }
+      })();
+
+      function switchTab(tab) {
+        const errorMsg = document.getElementById("errorMsg");
+        const successMsg = document.getElementById("successMsg");
+        errorMsg.style.display = "none";
+        successMsg.style.display = "none";
+
+        document
+          .getElementById("tabAdmin")
+          .classList.toggle("active", tab === "admin");
+        document
+          .getElementById("tabClient")
+          .classList.toggle("active", tab === "client");
+        document.getElementById("adminLoginForm").style.display =
+          tab === "admin" ? "block" : "none";
+        document.getElementById("clientLoginForm").style.display =
+          tab === "client" ? "block" : "none";
+      }
+
+      // Admin Login
+      document
+        .getElementById("adminLoginForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const errorMsg = document.getElementById("errorMsg");
+          const successMsg = document.getElementById("successMsg");
+          const btn = document.getElementById("adminSubmitBtn");
+          const spinner = document.getElementById("adminSpinner");
+          const btnText = btn.querySelector(".btn-text");
+
+          errorMsg.style.display = "none";
+          successMsg.style.display = "none";
+          btn.disabled = true;
+          btnText.style.display = "none";
+          spinner.style.display = "block";
+
+          const userName = document
+            .getElementById("adminUserName")
+            .value.trim();
+          const password = document.getElementById("adminPassword").value;
+
+          try {
+            const res = await fetch(`${API_BASE}/auth/admin/login`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              credentials: "include",
+              body: JSON.stringify({ userName, password }),
+            });
+            const result = await res.json();
+
+            if (res.ok && result.success) {
+              localStorage.setItem("token", result.token);
+              localStorage.setItem("user", JSON.stringify(result.user || {}));
+              localStorage.setItem("role", result.role || "admin");
+              successMsg.textContent = "Login successful! Redirecting...";
+              successMsg.style.display = "block";
+              setTimeout(() => {
+                window.location.href = "/dashboard";
+              }, 600);
+            } else {
+              errorMsg.textContent = result.message || "Invalid credentials";
+              errorMsg.style.display = "block";
+            }
+          } catch (err) {
+            errorMsg.textContent =
+              "Unable to connect to server. Please try again.";
+            errorMsg.style.display = "block";
+          } finally {
+            btn.disabled = false;
+            btnText.style.display = "inline";
+            spinner.style.display = "none";
+          }
+        });
+
+      // Client Login
+      document
+        .getElementById("clientLoginForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const errorMsg = document.getElementById("errorMsg");
+          const successMsg = document.getElementById("successMsg");
+          const btn = document.getElementById("clientSubmitBtn");
+          const spinner = document.getElementById("clientSpinner");
+          const btnText = btn.querySelector(".btn-text");
+
+          errorMsg.style.display = "none";
+          successMsg.style.display = "none";
+          btn.disabled = true;
+          btnText.style.display = "none";
+          spinner.style.display = "block";
+
+          const userName = document
+            .getElementById("clientUserName")
+            .value.trim();
+          const password = document.getElementById("clientPassword").value;
+
+          try {
+            const res = await fetch(`${API_BASE}/auth/client/login`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              credentials: "include",
+              body: JSON.stringify({ userName, password }),
+            });
+            const result = await res.json();
+
+            if (res.ok && result.success) {
+              localStorage.setItem("token", result.token);
+              localStorage.setItem("user", JSON.stringify(result.user || {}));
+              localStorage.setItem("role", result.role || "client");
+              successMsg.textContent = "Login successful! Redirecting...";
+              successMsg.style.display = "block";
+              setTimeout(() => {
+                window.location.href = "/dashboard";
+              }, 600);
+            } else {
+              errorMsg.textContent = result.message || "Invalid credentials";
+              errorMsg.style.display = "block";
+            }
+          } catch (err) {
+            errorMsg.textContent =
+              "Unable to connect to server. Please try again.";
+            errorMsg.style.display = "block";
+          } finally {
+            btn.disabled = false;
+            btnText.style.display = "inline";
+            spinner.style.display = "none";
+          }
+        });
+    </script>
+  </body>
+</html>

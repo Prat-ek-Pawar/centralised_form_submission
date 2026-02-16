@@ -1,138 +1,255 @@
-# API Documentation & Frontend Integration Guide
+# DigiTech Dashboard API Documentation
 
-## **Backend Base URL**
-*   **Live:** `https://forms.thedigitechsolutions.com`
-*   **Local:** `http://localhost:8088`
+This API enables account management for Admins and Clients, as well as handling dynamic form submissions.
 
-**Important:** The backend does **not** serve static files (HTML/CSS). You must rely on the CORS configuration in the backend allowing your frontend origin.
+**Base URL**: `http://localhost:8088/api`
 
 ---
 
-## **1. Authentication (Critical for Frontend Agent)**
-We use a **Hybrid Authentication Strategy**:
-1.  **Primary:** HTTP-Only Cookies (Secure, automatically handled by browser).
-2.  **Fallback:** Bearer Token (Manual handling via LocalStorage).
+## 1. Authentication
 
-### **Login Flow (Admin & Client)**
-**Validation Rules:**
-*   **User Name:** Required, Unique.
-*   **Password:** Required.
+### Admin Login
 
-**Frontend Implementation Steps:**
-1.  **Send Login Request:**
-    *   Endpoint: `POST /api/auth/admin/login` OR `POST /api/auth/client/login`
-    *   Payload: `{ "userName": "...", "password": "..." }`
-    *   **CRITICAL:** Must set `credentials: 'include'` in fetch options.
+Authenticates an admin user.
 
-2.  **Handle Response:**
-    *   The backend sets an HTTP-only cookie named `jwt`.
-    *   The backend **ALSO** returns the token in the JSON body: `response.token`.
+- **Endpoint**: `/auth/admin/login`
+- **Method**: `POST`
+- **Request Body**:
+  ```json
+  {
+    "userName": "admin_username",
+    "password": "admin_password"
+  }
+  ```
+- **Response (Success - 200)**:
+  ```json
+  {
+    "success": true,
+    "message": "Admin logged in",
+    "role": "admin",
+    "token": "jwt_token_here",
+    "user": {
+      "id": "6776b...",
+      "userName": "admin",
+      "email": "admin@example.com"
+    }
+  }
+  ```
 
-3.  **Store Token (Fallback):**
-    *   **Action:** Save `response.token` to `localStorage`.
-    *   `localStorage.setItem('authToken', response.token);`
-    *   Store user info: `localStorage.setItem('user', JSON.stringify(response.user));`
+### Client Login
 
-### **Making Authenticated Requests (Fetch)**
-For **ANY** protected route (like fetching submissions, clients, etc.), the frontend must use this robust pattern:
+Authenticates a client user.
 
-```javascript
-const token = localStorage.getItem('authToken');
+- **Endpoint**: `/auth/client/login`
+- **Method**: `POST`
+- **Request Body**:
+  ```json
+  {
+    "userName": "client_username",
+    "password": "client_password"
+  }
+  ```
+- **Response (Success - 200)**:
+  ```json
+  {
+    "success": true,
+    "message": "Client logged in",
+    "role": "client",
+    "token": "jwt_token_here",
+    "user": {
+      "id": "cd823...",
+      "clientID": "a2e07...",
+      "userName": "client_user",
+      "email": "client@example.com"
+    }
+  }
+  ```
 
-const headers = {
-    'Content-Type': 'application/json'
-};
+### Logout
 
-// ADD BEARER TOKEN IF AVAILABLE (Fallback)
-if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+Logs out the current user (clears cookies).
+
+- **Endpoint**: `/auth/logout`
+- **Method**: `POST`
+- **Response**:
+  ```json
+  {
+    "message": "Logged out"
+  }
+  ```
+
+---
+
+## 2. Form Submission (Public)
+
+Submit a new form lead. This endpoint allows public submission without authentication tokens (or uses client ID for identification).
+
+### Submit Form
+
+- **Endpoint**: `/forms/submit/:clientID`
+- **Method**: `POST`
+- **Params**:
+  - `clientID`: The unique UUID of the client receiving the form data (e.g., `a2e075a0-2ce1-450c-95ce-91bca340cea8`).
+- **Request Body**:
+  Accepts any JSON object representing the form fields. Recommended standard fields:
+  ```jsonR
+  {
+    "name": "John Doe",
+    "email": "john@example.com",
+    "phone": "+1234567890",
+    "message": "Your inquiry here...",
+    "company": "Company Name",
+    "title": "Service Title"
+  }
+  ```
+  _Note: For specific Celiyo integration, `phone` and `name` are required._
+- **Response (Success - 201)**:
+  ```json
+  {
+      "message": "Form submitted successfully.",
+      "formSubmission": {
+          "clientID": "a2e07...",
+          "data": { ... },
+          "_id": "...",
+          "createdAt": "..."
+      }
+  }
+  ```
+
+---
+
+## 3. Client Dashboard (Protected)
+
+Requires `Authorization: Bearer <token>` or valid Cookie.
+
+### Get My Submissions
+
+Retrieves form submissions belonging to the logged-in client.
+
+- **Endpoint**: `/forms/my-submissions`
+- **Method**: `GET`
+- **Headers**:
+  - `Authorization`: `Bearer <token>`
+- **Response (Success - 200)**:
+  ```json
+  [
+      {
+          "_id": "6776...",
+          "clientID": "a2e07...",
+          "data": {
+              "name": "Jane Doe",
+              "email": "jane@example.com"
+          },
+          "createdAt": "2026-01-05T..."
+      },
+      ...
+  ]
+  ```
+
+---
+
+## 4. Admin Management (Protected)
+
+Requires `Authorization: Bearer <token>` (Admin Role).
+
+### Get All Clients
+
+- **Endpoint**: `/admin/clients`
+- **Method**: `GET`
+- **Response**: Array of client objects.
+
+### Create Client
+
+- **Endpoint**: `/admin/clients`
+- **Method**: `POST`
+- **Request Body**:
+  ```json
+  {
+    "userName": "newclient",
+    "email": "new@example.com",
+    "password": "password123"
+  }
+  ```
+
+### Update Client
+
+- **Endpoint**: `/admin/clients/:id`
+- **Method**: `PUT`
+- **Request Body**: (Any fields to update)
+  ```json
+  {
+    "userName": "updatedName",
+    "isLocked": false
+  }
+  ```
+
+### Delete Client
+
+- **Endpoint**: `/admin/clients/:id`
+- **Method**: `DELETE`
+- **Request Body**:
+  ```json
+  {
+    "password": "admin_password_required_for_confirmation"
+  }
+  ```
+
+### Toggle Client Access (Lock/Unlock)
+
+- **Endpoint**: `/admin/clients/:id/toggle-access`
+- **Method**: `PUT`
+- **Response**:
+  ```json
+  {
+    "message": "Client access locked",
+    "isLocked": true
+  }
+  ```
+
+### Get All Submissions (Across all clients)
+
+- **Endpoint**: `/admin/submissions`
+- **Method**: `GET`
+
+### Get Submissions By Client
+
+- **Endpoint**: `/admin/submissions/client/:clientID`
+- **Method**: `GET`
+
+### Update Submission
+
+- **Endpoint**: `/admin/submissions/:id`
+- **Method**: `PUT`
+- **Request Body**:
+  ```json
+  {
+      "data": { ...new_form_data }
+  }
+  ```
+
+### Delete Submission
+
+- **Endpoint**: `/admin/submissions/:id`
+- **Method**: `DELETE`
+
+---
+
+## Error Handling
+
+All endpoints return standard HTTP status codes:
+
+- `200/201`: Success
+- `400`: Bad Request (Invalid input)
+- `401`: Unauthorized (Login failed or Token missing)
+- `403`: Forbidden (Wrong role or Account locked)
+- `404`: Not Found
+- `500`: Internal Server Error
+
+Error Response Format:
+
+```json
+{
+  "message": "Error description here",
+  "details": "Optional stack trace or details"
 }
-
-fetch('https://forms.thedigitechsolutions.com/api/some-endpoint', {
-    method: 'GET',
-    headers: headers,
-    credentials: 'include' // TRY COOKIE FIRST
-})
-.then(response => {
-    if (response.status === 401) {
-        // Handle Logout / Redirect to Login
-    }
-    return response.json();
-});
 ```
-
----
-
-## **2. Detailed Client Management (Admin Only)**
-
-### **A. Creating a Client**
-*   **Endpoint:** `POST /api/admin/clients`
-*   **Headers:** `Authorization: Bearer <token>`
-*   **Payload:**
-    ```json
-    {
-        "userName": "unique_username",  // Required, Unique
-        "email": "email@example.com",   // Required, Unique
-        "password": "initialPassword123" // Required
-    }
-    ```
-*   **Backend Logic:**
-    *   Checks if `userName` or `email` already exists.
-    *   Hashes password with `bcrypt` (salt 10).
-    *   Generates a unique `clientID` (UUID).
-    *   Sets `isLocked: false`.
-*   **Errors:** `400 Bad Request` (Duplicate user), `500 Server Error`.
-
-### **B. Deleting a Client (Secure)**
-*   **Endpoint:** `DELETE /api/admin/clients/:id`
-*   **Description:** Deleting a client is a sensitive action. The backend requires the **logged-in Admin's password** to verify intent.
-*   **Headers:** `Authorization: Bearer <token>`
-*   **Payload (JSON Body):**
-    ```json
-    {
-        "password": "YOUR_ADMIN_LOGIN_PASSWORD" 
-    }
-    ```
-    *   *Note: Using a body in a DELETE request is valid in JSON-based APIs, though non-standard in some strict REST interpretations. Ensure your fetch call sends a body.*
-
-*   **Frontend logic for Deletion:**
-    1.  User clicks "Delete".
-    2.  Show a modal asking: "Enter your Admin Password to confirm."
-    3.  Send the password in the body of the DELETE request.
-    
-    ```javascript
-    fetch(`https://forms.thedigitechsolutions.com/api/admin/clients/${clientId}`, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        },
-        body: JSON.stringify({ password: adminPasswordInput })
-    });
-    ```
-
----
-
-## **3. Fetching Submissions (Troubleshooting)**
-
-If you see "Null Index" or empty arrays when fetching `/api/admin/submissions`:
-1.  **Check Auth:** ensure the Bearer token is being sent.
-2.  **Check Data:** Run the `fix_db_indexes.js` script on the backend to clear old `publicKey` indexes if client creation fails.
-
-### **Fetch All Submissions (Admin)**
-*   **Endpoint:** `GET /api/admin/submissions`
-*   **Headers:** `Authorization: Bearer <token>`
-
-### **Fetch My Submissions (Client)**
-*   **Endpoint:** `GET /api/forms/my-submissions`
-*   **Headers:** `Authorization: Bearer <token>`
-
----
-
-## **4. Error Codes Reference**
-*   **200/201:** Success.
-*   **400:** Bad Request (Missing fields, Duplicate user).
-*   **401:** Unauthorized (Invalid Token/Cookie). Redirect to Login.
-*   **403:** Forbidden (Admin password incorrect, or Client account locked).
-*   **404:** Not Found (Client/Submission ID invalid).
-*   **500:** Server Error (Check backend logs).
