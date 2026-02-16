@@ -1256,7 +1256,7 @@
       function renderMySubmissionsSection() {
         const main = document.getElementById("mainContent");
         const clientID = currentUser.clientID || "";
-        const baseUrl = window.location.origin;
+        const baseUrl = "https://forms.celiyo.com";
         const formLink = `${baseUrl}/api/forms/submit/${clientID}`;
 
         main.innerHTML = `
@@ -1366,7 +1366,7 @@
           return;
         }
 
-        const baseUrl = window.location.origin;
+        const baseUrl = "https://forms.celiyo.com";
 
         tbody.innerHTML = clients
           .map((client) => {
