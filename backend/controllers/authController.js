@@ -10,18 +10,34 @@ const generateToken = (id, role, clientID = null) => {
 
 const adminLogin = async (req, res) => {
   try {
-    const { userName, password } = req.body;
+    // Defensive: handle missing or malformed body
+    const body = req.body || {};
+    const userName = body.userName;
+    const password = body.password;
+
+    if (!userName || !password) {
+      return res
+        .status(400)
+        .json({ message: "Username and password are required" });
+    }
+
     const admin = await Admin.findOne({
-      $or: [{ userName }, { email: userName }],
+      $or: [{ userName: userName }, { email: userName }],
     });
 
-    if (admin && (await admin.matchPassword(password))) {
+    if (!admin) {
+      return res.status(401).json({ message: "Invalid admin credentials" });
+    }
+
+    const isMatch = await admin.matchPassword(String(password));
+
+    if (isMatch) {
       const token = generateToken(admin._id, "admin");
 
       res.cookie("jwt", token, {
         httpOnly: true,
-        secure: true, // Required for HTTPS
-        sameSite: "none", // Required for cross-site (subdomain) cookie sharing
+        secure: true,
+        sameSite: "none",
         maxAge: 30 * 24 * 60 * 60 * 1000,
       });
 
@@ -29,7 +45,7 @@ const adminLogin = async (req, res) => {
         success: true,
         message: "Admin logged in",
         role: "admin",
-        token: token, // Sent for fallback (Bearer auth)
+        token: token,
         user: {
           id: admin._id,
           userName: admin.userName,
@@ -40,30 +56,47 @@ const adminLogin = async (req, res) => {
       res.status(401).json({ message: "Invalid admin credentials" });
     }
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Admin login error:", error);
+    res.status(500).json({ message: "Login failed: " + error.message });
   }
 };
 
 const clientLogin = async (req, res) => {
   try {
-    const { userName, password } = req.body;
+    // Defensive: handle missing or malformed body
+    const body = req.body || {};
+    const userName = body.userName;
+    const password = body.password;
+
+    if (!userName || !password) {
+      return res
+        .status(400)
+        .json({ message: "Username and password are required" });
+    }
+
     const client = await Client.findOne({
-      $or: [{ userName }, { email: userName }],
+      $or: [{ userName: userName }, { email: userName }],
     });
 
-    if (client && (await client.matchPassword(password))) {
-      if (client.isLocked) {
-        return res
-          .status(403)
-          .json({ message: "Account is locked. Please contact admin." });
-      }
+    if (!client) {
+      return res.status(401).json({ message: "Invalid client credentials" });
+    }
 
+    if (client.isLocked) {
+      return res
+        .status(403)
+        .json({ message: "Account is locked. Please contact admin." });
+    }
+
+    const isMatch = await client.matchPassword(String(password));
+
+    if (isMatch) {
       const token = generateToken(client._id, "client", client.clientID);
 
       res.cookie("jwt", token, {
         httpOnly: true,
-        secure: true, // Required for HTTPS
-        sameSite: "none", // Required for cross-site (subdomain) cookie sharing
+        secure: true,
+        sameSite: "none",
         maxAge: 30 * 24 * 60 * 60 * 1000,
       });
 
@@ -71,7 +104,7 @@ const clientLogin = async (req, res) => {
         success: true,
         message: "Client logged in",
         role: "client",
-        token: token, // Sent for fallback (Bearer auth)
+        token: token,
         user: {
           id: client._id,
           clientID: client.clientID,
@@ -83,7 +116,8 @@ const clientLogin = async (req, res) => {
       res.status(401).json({ message: "Invalid client credentials" });
     }
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Client login error:", error);
+    res.status(500).json({ message: "Login failed: " + error.message });
   }
 };
 
