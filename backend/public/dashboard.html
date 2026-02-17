@@ -1066,6 +1066,51 @@
       </div>
     </div>
 
+    <!-- Reset Password Modal -->
+    <div id="resetPasswordModal" class="modal-overlay">
+      <div class="modal-card">
+        <button class="modal-close" onclick="closeModal('resetPasswordModal')">
+          &times;
+        </button>
+        <h2>Reset Client Password</h2>
+        <p class="confirm-modal-text" id="resetPasswordText">
+          Set a new password for this client.
+        </p>
+        <div class="form-group">
+          <label>New Password</label>
+          <input
+            type="password"
+            id="resetNewPassword"
+            placeholder="Enter new password (min 6 chars)"
+            minlength="6"
+          />
+        </div>
+        <div class="form-group">
+          <label>Confirm Password</label>
+          <input
+            type="password"
+            id="resetConfirmPassword"
+            placeholder="Confirm new password"
+          />
+        </div>
+        <div class="confirm-modal-actions">
+          <button
+            class="btn btn-ghost"
+            onclick="closeModal('resetPasswordModal')"
+          >
+            Cancel
+          </button>
+          <button
+            class="btn btn-primary"
+            id="resetPasswordBtn"
+            onclick="confirmResetPassword()"
+          >
+            Reset Password
+          </button>
+        </div>
+      </div>
+    </div>
+
     <script>
       // ===== CONSTANTS & STATE =====
       const API_BASE = "/api";
@@ -1400,6 +1445,8 @@
                 <button class="btn btn-sm btn-warning" onclick="toggleClient('${client._id}')">
                   ${client.isLocked ? "Unlock" : "Lock"}
                 </button>
+                <button class="btn btn-sm btn-success" onclick="requestResetPassword('${client._id}', '${escapeHtml(client.userName || "")}')"
+                  >Reset PW</button>
                 <button class="btn btn-sm btn-danger" onclick="requestDeleteClient('${client._id}', '${escapeHtml(client.userName || "")}')">
                   Delete
                 </button>
@@ -1625,6 +1672,58 @@
             showToast("Server error creating client", "error");
           }
         });
+
+      // ===== RESET PASSWORD =====
+      let pendingResetClientId = null;
+
+      function requestResetPassword(id, name) {
+        pendingResetClientId = id;
+        document.getElementById("resetPasswordText").textContent =
+          `Set a new password for client "${name}":`;
+        document.getElementById("resetNewPassword").value = "";
+        document.getElementById("resetConfirmPassword").value = "";
+        openModal("resetPasswordModal");
+      }
+
+      async function confirmResetPassword() {
+        const newPassword = document.getElementById("resetNewPassword").value;
+        const confirmPassword = document.getElementById(
+          "resetConfirmPassword",
+        ).value;
+
+        if (!newPassword || newPassword.length < 6) {
+          showToast("Password must be at least 6 characters", "error");
+          return;
+        }
+
+        if (newPassword !== confirmPassword) {
+          showToast("Passwords do not match", "error");
+          return;
+        }
+
+        try {
+          const res = await fetch(
+            `${API_BASE}/admin/clients/${pendingResetClientId}/reset-password`,
+            {
+              method: "PUT",
+              headers: getHeaders(),
+              body: JSON.stringify({ newPassword }),
+            },
+          );
+          const data = await res.json();
+          if (res.ok) {
+            showToast(
+              data.message || "Password reset successfully!",
+              "success",
+            );
+            closeModal("resetPasswordModal");
+          } else {
+            showToast(data.message || "Failed to reset password", "error");
+          }
+        } catch (err) {
+          showToast("Server error", "error");
+        }
+      }
 
       // ===== AUTH =====
       function logout() {
